@@ -18,7 +18,7 @@ interface IForm {
   extraError?: string;
 }
 
-function ToDoList() {
+export default function HowToUseReactHookForm() {
   const { register,watch,handleSubmit,formState:{errors},setError,setValue } = useForm<IForm>({
     defaultValues:{email:'@naver.com'}
   });
@@ -99,5 +99,3 @@ function ToDoList() {
     </div>
   )
 }
-
-export default ToDoList;

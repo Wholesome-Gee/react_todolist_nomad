@@ -203,7 +203,7 @@ export default function App() {
 ---
 ### 2.2 Adapting and Extending ✏️
 ✔️ **스타일 컴포넌트 props 사용하기**
-- props를 활용하여 같은 styled-component이지만 다른 스타일링을 줄 수 있다.
+- props를 활용하여 같은 styled-component이지만(\<Box>) 다른 스타일링을 줄 수 있다.
 - props를 사용할땐 `${(props)=> props.xxx}`
 
 ✔️ **스타일 컴포넌트의 상속**
@@ -1036,4 +1036,11 @@ export default function ToDoList() {
   )
 }
 ```
+---
+### 6.11 Add To Do ✏️
+✔️ **useRecoilState()**  
+`const countAtom = atom<number>({ key: 'count', value: 0 })`
+- recoil에서 변수를 가져오는 방법 `const count = useRecoilValue(countAtom)`
+- recoil에서 변수를 변경하는 방법 `const setCount = useSetRecoilState(countAtom)`
+- recoil에서 state를 가져오는 방법 `const [count,setCount] = useRecoilState(countAtom)`
 ---
