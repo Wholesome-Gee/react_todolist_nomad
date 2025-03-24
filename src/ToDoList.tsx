@@ -1,37 +1,33 @@
-import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
-function ToDoList() {
-  const { register,watch } = useForm()
-  console.log(watch());
-  
-  return (
-    <div>
-      <form>
-        <input {...register('toDo')} placeholder="Write a to do" />
-        <button>Add</button>
-      </form>
-    </div>
-   )
-  // const [toDo, setToDo] = useState("");
-  // const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-  //   const {
-  //     currentTarget: { value },
-  //   } = event;
-  //   setToDo(value);
-  // };
-  // const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   console.log(toDo);
-  // };
-  // return (
-  //   <div>
-  //     <form onSubmit={onSubmit}>
-  //       <input onChange={onChange} value={toDo} placeholder="Write a to do" />
-  //       <button>Add</button>
-  //     </form>
-  //   </div>
-  // );
+interface IForm {
+  errors: {
+    toDo: { message: string; }
+  },
+  toDo: string;
 }
+export default function ToDoList(){
+  const {register, handleSubmit, formState:{errors}, setValue} = useForm<IForm>();
 
-export default ToDoList;
+  function onValid(data:IForm):void{
+    console.log(data);
+    
+    setValue('toDo','')
+  }
+  return (
+    <form onSubmit={handleSubmit(onValid)}>
+      <input 
+        {...register(
+          'toDo',
+          {
+            required: { value: true, message: "할 일을 입력하세요."},
+            minLength: { value: 5, message: "5글자 이상 입력하세요."},
+            maxLength: { value: 25, message: "25글자 이상 입력할 수 없습니다."}
+          },
+        )} 
+        placeholder="할 일을 입력하세요."></input>
+        <span>{errors.toDo?.message}</span>
+      <button>제출</button>
+    </form>
+  )
+}

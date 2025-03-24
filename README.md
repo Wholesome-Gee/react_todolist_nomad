@@ -898,12 +898,142 @@ export function fetchCoinInfo(coinId:string) {
     function onClickBtn() { setIsDark((prev)=>!prev)  }
     ```
 ---
-### 6.6 Forms
+### 6.6~6.7 Forms ✏️
 ✔️ **React Hook Form**
 - react-hook-form은 form관리 (state, eventHandler)를 쉽게 해준다.
 - `npm i react-hook-form`
-- `const { register,watch } = useForm();`
-  - register : input에 고유 이름을 부여해주며, 이 안에 이벤트핸들러가 자동으로 세팅되어있다.
+- useForm() 을 통하여 form관리가 가능하다.
+- `const { register,watch,handleSubmit,formState, setError } = useForm();`
+  - register : input에 이름을 부여하며, 유효성검사도 가능하다.
   - watch : input이 onChange되는지 지켜본다. 
-- `console.log(watch());`
-- `<input {...register("toDo")} placeholder="Write a to do"/>`
+  - handleSubmit : 2개의 parameter를 받는다. (form태그 onSubmit 이벤트에 작성)
+    - submit되었을때 유효성검사를 하는 함수 (필수)
+    - submit의 유효성검사가 실패했을때 호출되는 함수 (옵션) 
+  - formState
+    - formState.isDirty : form내의 input이 하나라도 수정된 경우 true를 반환
+    - formState.errors : form내의 input에 발생한 error
+  - setError : error를 발생시켜준다.
+  - setValue : input의 value값을 변경해준다.
+- useFrom type하는 방법은 interface에 errors와 우리가 form으로 받을 데이터들을 타입한다.
+```tsx
+import { useForm } from "react-hook-form";
+
+interface IForm {
+  // 각 input별 error message를 type
+  errors:{
+    email: { message:string; }
+    firstName : { message:string; }
+    lastName : { message:string; }
+    userName : { message:string; }
+    password1 : { message:string; }
+    password2 : { message:string; }
+  },
+  // form을 통해 받을 input들을 type
+  email: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  password1: string;
+  password2: string;
+  extraError?: string;
+}
+
+export default function ToDoList() {
+  const { register,watch,handleSubmit,formState:{errors},setError,setValue } = useForm<IForm>({
+    defaultValues:{email:'@naver.com'}
+  });
+  console.log('watch',watch());
+  // input에 변화가 일어나면 form안에 모든 input들의 name과 값을 object로 보여준다.
+  // {email: '@naver.com', firstName: '', lastName: '', userName: '', password1: '', …}
+  
+  
+  function onValid(data:IForm){
+    if(data.password1 !== data.password2) {
+      setError('password1',{message:"패스워드가 일치하지 않습니다."},{shouldFocus:true })
+    }
+    setValue('userName',"");
+    // setError('extraError', {message:'Server offline.'})
+  }
+  // onValid()는 data를 parameter로 받고 
+  // data에는 form내의 input들의 name과 값을 object로 보여준다.
+  
+  return (
+    <div>
+      <form 
+        onSubmit={handleSubmit(onValid)} 
+        style={{display:"flex", flexDirection:'column'}}
+      >
+      {/* useForm()의 handleSubmit은 form태그의 onSubmit에서 사용되며, 
+      첫번째 parameter로는 유효성검사 함수(onValid)를 갖고, 
+      두번째 parameter로는 유효성검사 실패 시 호출 함수를 갖는다. */}
+        <input 
+          {...register('email', {
+            required: '(필수) 이메일을 입력하세요.',
+            pattern: { 
+              value: /^[A-Za-z0-9._%+-]+@naver.com$/,
+              message: '네이버 이메일을 입력하세요.'
+            },
+          })} 
+          placeholder="Email" 
+        />
+        {/* useForm()의 register는 첫번째 parameter로 input에 지정할 name을 받고 
+        두번째 parameter로는 옵션 object를 갖는다.
+        그 옵션으로는 required, pattern, validate, min(max)Length 등이 있다.*/}
+        <span>{errors?.email?.message}</span>
+        {/* 여기서 errors는 useForm()의 formState에서 가져온것이고
+        formState. errors는 form내에 error가 발생한 input의 정보를 담고 있다. */}
+        <input
+          {...register('firstName', {
+            required: '(필수) First Name을 입력하세요.', 
+            validate: {
+              noNico : (value)=> value.includes('nico') ? "nico가 들어갈수 없습니다." : true,
+              noNice : (value)=> value.includes('nice') ? "nice가 들어갈수 없습니다." : true,
+            {/* validate는 현재 input의 값을 parameter로  갖는다.*/}
+            }
+          })}
+          placeholder="First Name" 
+        />
+        <span>{errors?.firstName?.message}</span>
+        <input
+          {...register('lastName', {
+              required: '(필수) Last Name을 입력하세요.', 
+          })}
+          placeholder="Last Name" 
+        />
+        <span>{errors?.lastName?.message}</span>
+        <input
+          {...register('userName', {
+            required: '(필수) User Name을 입력하세요.',
+            minLength: {
+              value: 5,
+              message: '5글자 이상 입력하세요.'
+            }
+          })}
+          placeholder="User Name" 
+        />
+        <span>{errors?.userName?.message}</span>
+        <input
+          {...register('password1', {
+            required: '(필수) Password1을 입력하세요.',
+          })}
+          placeholder="Password1" 
+        />
+        <span>{errors?.password1?.message}</span>
+        <input
+          {...register('password2', {
+            required: '(필수) Password2를 입력하세요.',
+          })}
+          placeholder="Password2" 
+        />
+        <span>{errors?.password2?.message}</span>
+        <button>Add</button>
+        <span>{errors?.extraError?.message}</span>
+        {/* extraError같은경우 form내 input에서 발생할 수 있는 error외에
+        추가로 발생할 수 있는 error(ex..서버와 연결이 끊어졌을 경우)이며,
+        onValid함수에 정의되어있다. */}
+      </form>
+    </div>
+  )
+}
+```
+---
