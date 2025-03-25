@@ -914,7 +914,7 @@ export function fetchCoinInfo(coinId:string) {
     - formState.errors : form내의 input에 발생한 error
   - setError : error를 발생시켜준다.
   - setValue : input의 value값을 변경해준다.
-- useFrom type하는 방법은 interface에 errors와 우리가 form으로 받을 데이터들을 타입한다.
+- useForm type하는 방법은 interface에 errors와 우리가 form으로 받을 데이터들을 타입한다.
 ```tsx
 import { useForm } from "react-hook-form";
 
@@ -1044,3 +1044,80 @@ export default function ToDoList() {
 - recoil에서 변수를 변경하는 방법 `const setCount = useSetRecoilState(countAtom)`
 - recoil에서 state를 가져오는 방법 `const [count,setCount] = useRecoilState(countAtom)`
 ---
+### 6.13 Categories ✏️
+✔️ **type의 일부만 지정해서 type하는 방법**
+```tsx
+interface IUser {
+  name: string;
+  age: number;
+  size: {
+    weight: number;
+    height: number;
+  }
+}
+
+철수나이:IUser["age"]
+```
+### 6.14 Selectors part One ✏️
+✔️ **Recoil의 selector**
+- selector는 atom을 formatting 해주는 기능이다.
+- selector는 key와 get이라는 method를 담은 object를 parameter로 받는다. 
+  - `const selector = selector({key:'', get:({get})=>{ ... return }})
+  - get은 콜백함수를 값으로 갖고 그 콜백함수는 get이라는 atom을 가져올 수 있는 parameter를 갖는다.
+```tsx
+// atom.tsx
+export interface IToDo {
+  id: number;
+  text: string;
+  category: "TO_DO"|"DOING"|"DONE";
+}
+
+export const toDoState = atom<IToDo[]>({
+  key: "toDo",
+  default: [
+    {id: 000, text: 'running', category:'TO_DO'},
+    {id: 001, text: 'swimming', category:'TO_DO'},
+    {id: 002, text: 'study', category:'TO_DO'},
+    {id: 003, text: 'game', category:'DOING'},
+    {id: 004, text: 'meeting', category:'DOING'},
+    {id: 005, text: 'sleep', category:'DOING'},
+    {id: 006, text: 'eating', category:'DOING'},
+    {id: 007, text: 'shower', category:'DOING'},
+    {id: 008, text: 'shopping', category:'DONE'},
+    {id: 009, text: 'school', category:'DONE'},
+  ],
+})
+
+export const toDoSelector = selector({
+  key: "toDoSelector",
+  get: ({get})=>{
+    const toDos = get(toDoState)
+    return [
+      toDos.filter((toDo)=>toDo.category === 'TO_DO'),
+      toDos.filter((toDo)=>toDo.category === 'DOING'),
+      toDos.filter((toDo)=>toDo.category === 'DONE'),
+    ];
+  }
+})
+
+/*
+[
+  [
+    {id: 000, text: 'running', category:'TO_DO'},
+    {id: 001, text: 'swimming', category:'TO_DO'},
+    {id: 002, text: 'study', category:'TO_DO'},
+  ],
+  [
+    {id: 003, text: 'game', category:'DOING'},
+    {id: 004, text: 'meeting', category:'DOING'},
+    {id: 005, text: 'sleep', category:'DOING'},
+    {id: 006, text: 'eating', category:'DOING'},
+    {id: 007, text: 'shower', category:'DOING'},
+  ],
+  [
+    {id: 008, text: 'shopping', category:'DONE'},
+    {id: 009, text: 'school', category:'DONE'},
+  ]
+]
+*/
+```

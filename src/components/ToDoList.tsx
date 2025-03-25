@@ -1,58 +1,32 @@
-import React from 'react';
-import { useForm } from "react-hook-form";
-import { atom, useRecoilState, } from "recoil";
-
-interface IForm {
-  errors: {
-    toDo: { message: string; }
-  },
-  toDo: string;
-}
-
-interface ITodo {
-  id: number;
-  text: string;
-  category: "TO_DO"|"DOING"|"DONE";
-}
-
-const toDoState = atom<ITodo[]>({
-  key: "toDo",
-  default: [],
-})
-
+import { useRecoilState, useRecoilValue } from "recoil"
+import { categoryState,  toDoSelector, } from "../atoms"
+import CreateToDo from "./CreateToDo"
+import ToDo from "./ToDo"
 
 export default function ToDoList(){
-  const [toDos,setToDos] = useRecoilState(toDoState)
-  const {register, handleSubmit, formState:{errors}, setValue} = useForm<IForm>();
-
-  function onValid(data:IForm):void{
-    setToDos((toDos)=>[{id:Date.now(), text:data.toDo, category:"TO_DO"},...toDos])
-    setValue('toDo','')
+  const toDos = useRecoilValue(toDoSelector)
+  const [category, setCategory] = useRecoilState(categoryState)
+  const onInput = (event:React.FormEvent<HTMLSelectElement>) => {
+    setCategory(event.currentTarget.value)
   }
-  console.log(typeof crypto.randomUUID());
+  console.log(category);
+  
+  
   return (
     <>
       <h1>To Dos</h1>
       <hr/>
-      <form onSubmit={handleSubmit(onValid)}>
-        <input 
-          {...register(
-            'toDo',
-            {
-              required: { value: true, message: "할 일을 입력하세요."},
-              minLength: { value: 5, message: "5글자 이상 입력하세요."},
-              maxLength: { value: 25, message: "25글자 이상 입력할 수 없습니다."}
-            },
-          )} 
-          placeholder="할 일을 입력하세요."></input>
-          <span>{errors.toDo?.message}</span>
-        <button>제출</button>
+      <form>
+        <select value={category} onInput={onInput}>
+          <option value='TO_DO'>To Do</option>
+          <option value='DOING'>Doing</option>
+          <option value='DONE'>Done</option>
+        </select>
       </form>
-      <ul>
-        {toDos.map(toDo=>
-          <li key={toDo.id}>{toDo.text}</li>
-        )}
-      </ul>
+      <CreateToDo/>
+      {
+        toDos?.map(toDo=> <ToDo key={toDo.id} id={toDo.id} text={toDo.text} category={toDo.category}/>)
+      }
     </>
   )
 }
