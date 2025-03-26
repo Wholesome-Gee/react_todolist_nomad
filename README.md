@@ -1058,7 +1058,7 @@ interface IUser {
 
 철수나이:IUser["age"]
 ```
-### 6.14 Selectors part One ✏️
+### 6.16 Selectors part One ✏️
 ✔️ **Recoil의 selector**
 - selector는 atom을 formatting 해주는 기능이다.
 - selector는 key와 get이라는 method를 담은 object를 parameter로 받는다. 
@@ -1121,3 +1121,23 @@ export const toDoSelector = selector({
 ]
 */
 ```
+### 6.18 Enum ✏️
+✔️ **TypeScript Enum으로 Type을 배열화하기**
+```tsx
+// atom.tsx
+
+// 컴포넌트에서 
+enum Categories {
+  TO_DO = "TO_DO", // 컴포넌트에서 console.log(Categories.TO_DO) → 0
+  DOING = "DOING", // 컴포넌트에서 console.log(Categories.DOING) → 1
+  DONE = "DONE" // 컴포넌트에서 console.log(Categories.DONE) → 2
+}
+
+interface IToDO {
+  id: number,
+  text: string,
+  category: Categories
+  // category : "TO_DO"|"DOING"|"DONE" 이었던것.
+}
+```
+---
